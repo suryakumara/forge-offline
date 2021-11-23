@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Very Basic 3D Viewer</title>
+  <title>Forge-Bee</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <!-- The Viewer JS & CSS-->
   <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css"
@@ -30,13 +30,11 @@
   <div id="forgeViewer"></div>
 
   <!-- Developer JS -->
-
   <script>
     const socket = io("http://localhost:3333");
     socket.on("UpdateUWB", (data) => {
       console.log(data)
     });
-    console.log(socket)
   </script>
   <script>
     const myViewerDiv = document.getElementById('forgeViewer');
@@ -47,7 +45,7 @@
       globalOffset: { x: 0, y: 0, z: 0 },
       keepCurrentModels: true,
       // 'document': 'http://developer-autodesk.github.io/translated-models/dwfx-sample-house/f0224dd3-8767-45c1-ff99-5c9c881b9fee/0.svf',
-      'document': './assets/models/bee-office.gltf'
+      'document': './assets/models/bee/beeinventoroffice_3rdfloor.svf'
     };
     Autodesk.Viewing.Initializer(options, function () {
       viewer = new Autodesk.Viewing.GuiViewer3D(
