@@ -1,32 +1,99 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <meta charset="UTF-8">
   <title>Very Basic 3D Viewer</title>
   <link rel="icon" href="/images/favicon.ico" type="image/x-icon" />
   <!-- The Viewer JS & CSS-->
-  <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/style.min.css?v=v7.*" type="text/css">
-  <script language="JavaScript" src="https://developer.api.autodesk.com/modelderivative/v2/viewers/viewer3D.min.js?v=v7.*"></script>
+  <link rel="stylesheet" href="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/style.min.css"
+    type="text/css">
+  <script src="https://developer.api.autodesk.com/modelderivative/v2/viewers/7.*/viewer3D.min.js"></script>
+
+  <!-- bootstrap -->
+  <!-- Common packages: jQuery, Bootstrap, jsTree -->
+  <script src="//cdnjs.cloudflare.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/js/bootstrap.min.js"></script>
+  <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.4.1/css/bootstrap.min.css">
+
+  <!-- socket io -->
+  <script src="https://cdn.socket.io/4.3.2/socket.io.min.js"
+    integrity="sha384-KAZ4DtjNhLChOB/hxXuKqhMLYvx3b5MlT55xPEiNmREKRzeEm+RVPlTnAn0ajQNs"
+    crossorigin="anonymous"></script>
+  <!-- beeInventor Extension -->
+  <link rel="stylesheet" href="extension/main.css">
+  <script src="assets/fonts/Monaco_Regular.js"></script>
+  <script src="extension/beeinventor-extension.js"></script>
 </head>
 
 <body>
-  <img src='/images/forge-logo.png' style="height:auto;width:20%;position:absolute;left:10px;top:10px;z-index:233">
-  <div id="MyViewerDiv"></div>
-
-
+  <div id="forgeViewer"></div>
 
   <!-- Developer JS -->
+
   <script>
-      var myViewerDiv = document.getElementById('MyViewerDiv');
-      var viewer = new Autodesk.Viewing.Private.GuiViewer3D(myViewerDiv);
-      var options = {
-          'env' : 'Local',
-          'document' : './shaver/0.svf'
-      };
-      Autodesk.Viewing.Initializer(options, function() {
-        viewer.start(options.document, options);
-      });
+    const socket = io("http://localhost:3333");
+    socket.on("UpdateUWB", (data) => {
+      console.log(data)
+    });
+    console.log(socket)
   </script>
+  <script>
+    const myViewerDiv = document.getElementById('forgeViewer');
+    let viewer = new Autodesk.Viewing.Private.GuiViewer3D(myViewerDiv);
+    const options = {
+      'env': 'Local',
+      applyScaling: { to: "meters" },
+      globalOffset: { x: 0, y: 0, z: 0 },
+      keepCurrentModels: true,
+      // 'document': 'http://developer-autodesk.github.io/translated-models/dwfx-sample-house/f0224dd3-8767-45c1-ff99-5c9c881b9fee/0.svf',
+      'document': './assets/models/bee-office.gltf'
+    };
+    Autodesk.Viewing.Initializer(options, function () {
+      viewer = new Autodesk.Viewing.GuiViewer3D(
+        document.getElementById("forgeViewer"),
+        { extensions: ["Autodesk.DocumentBrowser", "BeeInventor"] }
+      );
+      viewer.start();
+      viewer.loadModel(options.document, options)
+
+      setCamera(viewer)
+
+    })
+
+    function setCamera(viewer) {
+      setTimeout(() => {
+        const pos = new THREE.Vector3(-1.9418035665709943, -26.747346936530814, 18.603221077622162)
+        const target = new THREE.Vector3(-1.9403051859659226, -24.92825998040271, 17.619854897824176)
+        viewer.navigation.setView(pos, target)
+      }, 400);
+
+
+    }
+
+
+    function onDocumentLoadSuccess(doc) {
+      const viewables = doc.getRoot().getDefaultGeometry();
+      const beeOption = {
+        applyScaling: { to: "meters" },
+        globalOffset: { x: 0, y: 0, z: 0 },
+        keepCurrentModels: true,
+      };
+      viewer.loadDocumentNode(doc, viewables, beeOption).then((i) => {
+        // documented loaded, any action?
+      });
+    }
+
+    function onDocumentLoadFailure(viewerErrorCode, viewerErrorMsg) {
+      console.error(
+        "onDocumentLoadFailure() - errorCode:" +
+        viewerErrorCode +
+        "\n- errorMessage:" +
+        viewerErrorMsg
+      );
+    }
+  </script>
+
 </body>
 
 </html>
